@@ -1,0 +1,6 @@
+product_train
+__pycache__
+train
+add-data
+venv
+.milvus.db.lock
