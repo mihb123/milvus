@@ -14,7 +14,7 @@ warnings.filterwarnings("ignore", category=UserWarning, module='milvus_lite')
 PORT = 51200
 
 print(">>> Initializing Milvus & Extractor...", flush=True)
-extractor = FeatureExtractor(MODEL_NAME)
+extractor = FeatureExtractor()
 milvus_manager = MilvusManager(dimension=FEATURE_DIMENSION)
 
 if not milvus_manager.has_data():
@@ -87,6 +87,7 @@ def search_image():
     try:
         t1 = time.time()
         query_vector = extractor(file) 
+        print(f"Query vector detail: length={len(query_vector)}, sample={query_vector}")
         t2 = time.time()
         
         if not query_vector:
