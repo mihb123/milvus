@@ -1,10 +1,13 @@
 import os
 from tqdm import tqdm
+from dotenv import load_dotenv
 from extractor import FeatureExtractor, FEATURE_DIMENSION, MODEL_NAME
 from milvus_db import MilvusManager
 
-DATA_DIR = "product_train"
-BATCH_SIZE = 50
+load_dotenv()
+
+DATA_DIR = os.getenv('DATA_DIR', 'product_train')
+BATCH_SIZE = int(os.getenv('BATCH_SIZE', 50))
 
 def run_import(milvus_manager=None):
     print("\n" + "="*40, flush=True)

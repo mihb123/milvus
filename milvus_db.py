@@ -1,12 +1,15 @@
 import os
+from dotenv import load_dotenv
 from pymilvus import MilvusClient
 from extractor import FEATURE_DIMENSION
 
-MILVUS_URI = os.path.expanduser("./milvus.db")
-COLLECTION_NAME = "image_embeddings"
+load_dotenv()
+
+MILVUS_DB_PATH = os.getenv("MILVUS_DB_PATH", "./milvus.db")
+COLLECTION_NAME = os.getenv("COLLECTION_NAME", "image_embeddings")
 
 class MilvusManager:
-    def __init__(self, uri=MILVUS_URI, dimension=FEATURE_DIMENSION, collection_name=COLLECTION_NAME):
+    def __init__(self, uri=MILVUS_DB_PATH, dimension=FEATURE_DIMENSION, collection_name=COLLECTION_NAME):
         self.client = MilvusClient(uri=uri)
         self.collection_name = collection_name
         self._setup_collection(dimension)

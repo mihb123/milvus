@@ -3,14 +3,17 @@ import math
 import warnings
 from flask import Flask, request, jsonify
 from PIL import Image, ImageDraw
+from dotenv import load_dotenv
 from extractor import FeatureExtractor, FEATURE_DIMENSION, MODEL_NAME
 from milvus_db import MilvusManager
 from import_data import run_import, DATA_DIR
 from add_data import process_add_data, ADD_DIR
 
+load_dotenv()
+
 warnings.filterwarnings("ignore", category=UserWarning, module='milvus_lite')
 
-PORT = 51200
+PORT = int(os.getenv('PORT', 51200))
 
 print(">>> Initializing Milvus & Extractor...", flush=True)
 extractor = FeatureExtractor()
@@ -93,7 +96,6 @@ def search_image():
 
     try:
         query_vector = extractor(file) 
-        print(f"Query vector detail: length={len(query_vector)}, sample={query_vector[:5]}...", flush=True)
         
         if not query_vector:
             return jsonify({"status_code": 500, "message": "Extraction failed", "data": null}), 500
@@ -118,10 +120,12 @@ def search_image():
                     if len(final_results) >= 10:
                         break
                 
-        display_results(final_results)
+        # debug        
+        # display_results(final_results)
         
         return jsonify({
-            "status": "success",
+            "status_code": 200,
+            "message": "success",
             "data": final_results
         })
 
@@ -170,10 +174,9 @@ def add_image():
         result = process_add_data(milvus_manager=milvus_manager, extractor=extractor)
 
         return jsonify({
-            "status": "success",
+            "status_code": 200,
             "message": "Image processed successfully",
-            "details": result,
-            "saved_path": os.path.join(DATA_DIR, target_name_key, clean_filename)
+            "data": result,
         })
 
     except Exception as e:
@@ -183,5 +186,5 @@ def add_image():
 
 if __name__ == '__main__':
     print(f">>> Service running on port {PORT}", flush=True)
-    app.run(host='0.0.0.0', port=PORT, threaded=True)
+    app.run(host='0.0.0.0', port=PORT, threaded=True, debug=True)
     

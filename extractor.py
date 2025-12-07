@@ -1,10 +1,14 @@
 import torch
+import os
 from PIL import Image
 from transformers import AutoImageProcessor, AutoModel
 from sklearn.preprocessing import normalize
+from dotenv import load_dotenv
 
-MODEL_NAME = "facebook/dinov2-base"
-FEATURE_DIMENSION = 768
+load_dotenv()
+
+MODEL_NAME = os.getenv('MODEL_NAME', 'facebook/dinov2-base')
+FEATURE_DIMENSION = int(os.getenv('FEATURE_DIMENSION', 768))
 
 class FeatureExtractor:
     def __init__(self, modelname=MODEL_NAME):

@@ -1,12 +1,15 @@
 import os
 import shutil
-import sys 
+import sys
 from tqdm import tqdm
+from dotenv import load_dotenv
 from extractor import FeatureExtractor, FEATURE_DIMENSION, MODEL_NAME
 from milvus_db import MilvusManager
 from import_data import DATA_DIR, BATCH_SIZE
 
-ADD_DIR = "add-data"
+load_dotenv()
+
+ADD_DIR = os.getenv('ADD_DIR', 'add-data')
 
 def process_add_data(milvus_manager=None, extractor=None):
     print(f"\n>>> 🔄 STARTING ADD DATA PROCESS...", flush=True)
@@ -99,7 +102,7 @@ def process_add_data(milvus_manager=None, extractor=None):
     print(f"   - Added to DB: {count_added}")
     print(f"   - Moved to Train: {count_moved}", flush=True)
     
-    return {"status": "success", "added": count_added, "moved": count_moved}
+    return {"added_file_count": count_added, "moved_file_count": count_moved}
 
 if __name__ == "__main__":
     process_add_data()
