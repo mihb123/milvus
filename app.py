@@ -34,53 +34,6 @@ def get_milvus_manager():
             
     return milvus_manager
 
-def display_results(results):
-    if not results: return
-    w, h, cols = 200, 200, 5
-    
-    rows = math.ceil(len(results) / cols)
-    # Tạo ảnh nền trắng
-    canvas = Image.new('RGB', (cols * w, rows * h), 'white')
-    
-    for i, item in enumerate(results):
-        try:
-            folder_path = os.path.join(DATA_DIR, item['name_key'])
-            
-            if not os.path.exists(folder_path):
-                print(f"Missing folder: {folder_path}")
-                continue
-
-            # Lấy ảnh đầu tiên tìm thấy
-            img_file = None
-            for file in os.listdir(folder_path):
-                if file.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
-                    img_file = file
-                    break
-            
-            if not img_file: continue
-
-            img_path = os.path.join(folder_path, img_file)
-            img = Image.open(img_path).convert('RGB').resize((w, h))
-            
-            # --- VẼ SCORE LÊN ẢNH ---
-            draw = ImageDraw.Draw(img)
-            # Vẽ hình chữ nhật nền đen mờ ở góc để chữ dễ đọc
-            draw.rectangle([(0, 0), (100, 20)], fill="black") 
-            # Viết chữ (Thứ tự - Score)
-            draw.text((5, 5), f"#{i+1}: {item['score']:.3f}", fill="yellow")
-            # Viết tên Key ở dưới
-            draw.rectangle([(0, h-20), (w, h)], fill="black")
-            draw.text((5, h-15), f"{item['name_key']}", fill="white")
-            # ------------------------
-
-            x = (i % cols) * w
-            y = (i // cols) * h
-            canvas.paste(img, (x, y))
-        except Exception as e: 
-            print(f"Error drawing {item['name_key']}: {e}")
-
-    canvas.show()
-
 app = Flask(__name__)
 
 @app.route('/api/search-by-image', methods=['POST'])
@@ -119,9 +72,6 @@ def search_image():
                     
                     if len(final_results) >= 10:
                         break
-                
-        # debug        
-        # display_results(final_results)
         
         return jsonify({
             "status_code": 200,
@@ -155,8 +105,8 @@ def add_image():
         
         if os.path.exists(DATA_DIR):
             for existing_folder in os.listdir(DATA_DIR):
-                if existing_folder.lower() == target_name_key.lower():
-                    print(f">>> Auto-corrected '{target_name_key}' -> '{existing_folder}'")
+                if existing_folder.lower().strip() == target_name_key.lower():
+                    print(f">>> Auto-corrected '{target_name_key}' -> '{existing_folder}'", flush=True)
                     target_name_key = existing_folder
                     break
         
@@ -183,8 +133,11 @@ def add_image():
         print(f"❌ Error adding image: {e}")
         return jsonify({"status_code": 500, "message": str(e), "data": null}), 500
     
+@app.route('/api/check-healthy', methods=['GET'])
+def check_healthy():
+    return jsonify({"status_code": 200, "message": "Server is healthy"})
 
 if __name__ == '__main__':
     print(f">>> Service running on port {PORT}", flush=True)
-    app.run(host='0.0.0.0', port=PORT, threaded=True, debug=True)
+    app.run(host='0.0.0.0', port=PORT, threaded=True)
     

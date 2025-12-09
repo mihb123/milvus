@@ -1,7 +1,7 @@
 import os
 from PIL import Image
 
-def resize_images_in_folder(input_folder, output_folder, target_height=768):
+def resize_images(input_folder, output_folder, target_height=768):
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
         print(f"✅ Đã tạo folder mới: {output_folder}")
@@ -39,8 +39,31 @@ def resize_images_in_folder(input_folder, output_folder, target_height=768):
     print(f"🎉 Hoàn tất! Đã xử lý {processed_count} ảnh.")
     print(f"📂 Kiểm tra folder: {output_folder}")
 
+def resize_single_image(file_path, target_height=768):
+    try:
+        with Image.open(file_path) as img:
+            original_format = img.format 
+            
+            aspect_ratio = img.width / img.height
+            new_height = target_height
+            new_width = int(aspect_ratio * new_height)
+
+            resized_img = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
+            
+            if img.mode in ("RGBA", "P"): 
+                resized_img = resized_img.convert("RGBA")
+            else:
+                resized_img = resized_img.convert("RGB")
+            
+            resized_img.save(file_path, format=original_format, quality=90, optimize=True)
+            
+            return True, f"{new_width}x{new_height}"
+            
+    except Exception as e:
+        return False, str(e)
+
 if __name__ == "__main__":
     FOLDER_INPUT = r"/home/minhchu1336/Downloads/super-hero" 
     FOLDER_OUTPUT = r"/home/minhchu1336/Downloads/sah-output"
 
-    resize_images_in_folder(FOLDER_INPUT, FOLDER_OUTPUT, target_height=1080)
+    resize_images(FOLDER_INPUT, FOLDER_OUTPUT, target_height=1080)

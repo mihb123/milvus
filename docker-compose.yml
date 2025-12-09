@@ -1,0 +1,32 @@
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: milvus-nginx
+    ports:
+      - "8000:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      milvus-search:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - milvus-network
+
+  milvus-search:
+    build: .
+    container_name: milvus-image-search
+    volumes:
+      - ./milvus.db:/app/milvus.db
+      - ./product_train:/app/product_train
+      - ./add-data:/app/add-data
+      - ./.env:/app/.env
+    environment:
+      - PORT=51200
+    restart: unless-stopped
+    networks:
+      - milvus-network
+
+networks:
+  milvus-network:
+    driver: bridge

@@ -83,7 +83,14 @@ def process_add_data(milvus_manager=None, extractor=None):
             
             dest_path = os.path.join(dest_folder, filename)
             
-            shutil.move(file_path, dest_path)
+            if os.path.exists(dest_path):
+                os.remove(dest_path)
+                shutil.move(file_path, dest_path)
+                print(f"⚠️ Overwritten existing file: {filename}")
+
+            else:
+                shutil.move(file_path, dest_path)
+            
             count_moved += 1
 
         except Exception as e:

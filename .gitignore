@@ -4,3 +4,4 @@ train
 add-data
 venv
 .milvus.db.lock
+image
