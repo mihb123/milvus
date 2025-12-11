@@ -1,4 +1,5 @@
 # --- Cấu hình nguồn cài đặt bản CPU-Only cho PyTorch ---
+# --extra-index-url https://download.pytorch.org/whl/cu118
 --extra-index-url https://download.pytorch.org/whl/cpu
 
 Flask
