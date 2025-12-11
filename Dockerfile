@@ -7,10 +7,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 RUN apt-get update && apt-get install -y \
     build-essential \
     curl \
-    nano \
-    git \
     libgomp1 \
     && rm -rf /var/lib/apt/lists/*
+
+RUN adduser --disabled-password --gecos '' appuser
 
 WORKDIR /app
 
@@ -19,13 +19,16 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+RUN mkdir -p product_train add-data && \
+    chown -R appuser:appuser /app
 
-RUN mkdir -p product_train add-data
+COPY --chown=appuser:appuser . .
 
 EXPOSE 51200
 
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+USER appuser
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=45s --retries=3 \
     CMD curl -f http://localhost:51200/api/check-healthy || exit 1
 
-CMD ["/bin/bash", "-c", "python -c 'from app import get_milvus_manager; get_milvus_manager()' && gunicorn --bind 0.0.0.0:51200 --workers 2 --timeout 120 app:app"]
+CMD ["gunicorn", "--workers", "1", "--threads", "4", "--timeout", "120", "--bind", "0.0.0.0:51200", "app:app"]
