@@ -7,8 +7,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-MODEL_NAME = os.getenv('MODEL_NAME', 'facebook/dinov2-base')
-FEATURE_DIMENSION = int(os.getenv('FEATURE_DIMENSION', 768))
+MODEL_NAME = os.getenv('MODEL_NAME', 'facebook/dinov2-small')
+FEATURE_DIMENSION = int(os.getenv('FEATURE_DIMENSION', 384))
 
 class FeatureExtractor:
     def __init__(self, modelname=MODEL_NAME):

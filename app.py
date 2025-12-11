@@ -17,28 +17,19 @@ PORT = int(os.getenv('PORT', 51200))
 
 print(">>> Initializing Milvus & Extractor...", flush=True)
 extractor = FeatureExtractor()
-milvus_manager = None
+print(">>> Initializing Milvus Connection...", flush=True)
+milvus_manager = MilvusManager(dimension=FEATURE_DIMENSION)
 
-def get_milvus_manager():
-    global milvus_manager
-    
-    if milvus_manager is None:
-        print(">>> Initializing Milvus Connection...", flush=True)
-        milvus_manager = MilvusManager(dimension=FEATURE_DIMENSION)
-        
-        if not milvus_manager.has_data():
-            print(">>> DB Check: EMPTY. Starting Import...", flush=True)
-            run_import(milvus_manager)
-        else:
-            print(">>> DB Check: DATA EXISTS. Skipping Import.", flush=True)
-            
-    return milvus_manager
+if not milvus_manager.has_data():
+    print(">>> DB Check: EMPTY. Starting Import...", flush=True)
+    run_import(milvus_manager)
+else:
+    print(">>> DB Check: DATA EXISTS. Skipping Import.", flush=True)
 
 app = Flask(__name__)
 
 @app.route('/api/search-by-image', methods=['POST'])
 def search_image():
-    milvus_manager = get_milvus_manager()
 
     if 'image' not in request.files:
         return jsonify({"status_code": 400, "message": "No file part", "data": null}), 400
@@ -85,7 +76,6 @@ def search_image():
 
 @app.route('/api/search-by-image/add-image', methods=['POST'])
 def add_image():
-    milvus_manager = get_milvus_manager()
     try:
         if 'image' not in request.files:
             return jsonify({"status_code": 400, "message": "No image file provided", "data": null}), 400
